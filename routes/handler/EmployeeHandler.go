@@ -13,9 +13,17 @@ import (
 
 func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
 	// var dbConn *sql.DB
-	dbConn, _ := db.SetupConnectionDB()
+	dbConn := db.SetupConnectionDB()
 
-	rows, err := dbConn.Query(queries.GetEmployees)
+	transaction, err := dbConn.Begin()
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer transaction.Rollback()
+
+	rows, err := transaction.Query(queries.GetEmployees)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,6 +51,11 @@ func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
 
 	}
 
+	if err := transaction.Commit(); err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 
@@ -58,7 +71,7 @@ func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	dbConn, _ := db.SetupConnectionDB()
+	dbConn := db.SetupConnectionDB()
 
 	_, err := dbConn.Exec(queries.CreateEmployee, Employee.EmployeeName, Employee.DepartmentID)
 	if err != nil {

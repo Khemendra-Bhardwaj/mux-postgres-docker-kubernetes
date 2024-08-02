@@ -3,23 +3,33 @@ package db
 import (
 	"database/sql"
 	"log"
+	"sync"
 )
 
-var dbConn *sql.DB
+var (
+	dbConn *sql.DB
+	once   sync.Once
+	mu     sync.Mutex
+)
 
-func SetupConnectionDB() (*sql.DB, error) {
-	var err error
-	if dbConn == nil {
-		dbConn, err = sql.Open("postgres", ConnStr)
-		if err != nil {
-			log.Printf("Error opening database connection: %v", err)
-			return nil, err
-		}
+func SetupConnectionDB() *sql.DB {
+	mu.Lock()
+	defer mu.Unlock()
 
-		if err = dbConn.Ping(); err != nil {
-			log.Printf("Error pinging database: %v", err)
-			return nil, err
+	once.Do(func() {
+		var err error
+		if dbConn == nil {
+			dbConn, err = sql.Open("postgres", ConnStr)
+			if err != nil {
+				log.Fatalf("Error opening database connection: %v", err)
+			}
+
+			if err = dbConn.Ping(); err != nil {
+				log.Fatalf("Error opening database connection: %v", err)
+			}
 		}
-	}
-	return dbConn, nil
+	})
+
+	return dbConn
+
 }
