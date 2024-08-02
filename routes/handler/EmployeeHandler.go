@@ -12,14 +12,8 @@ import (
 )
 
 func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
-
-	var dbConn *sql.DB
-	dbConn, err := sql.Open("postgres", db.ConnStr)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dbConn.Close()
+	// var dbConn *sql.DB
+	dbConn, _ := db.SetupConnectionDB()
 
 	rows, err := dbConn.Query(queries.GetEmployees)
 	if err != nil {
@@ -27,8 +21,6 @@ func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
 		return
 	}
 	defer rows.Close()
-
-	log.Println(rows)
 
 	var Employees []map[string]interface{}
 
@@ -66,12 +58,9 @@ func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	dbConn, err := sql.Open("postgres", db.ConnStr)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	_, err = dbConn.Exec(queries.CreateEmployee, Employee.EmployeeName, Employee.DepartmentID)
+	dbConn, _ := db.SetupConnectionDB()
+
+	_, err := dbConn.Exec(queries.CreateEmployee, Employee.EmployeeName, Employee.DepartmentID)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
