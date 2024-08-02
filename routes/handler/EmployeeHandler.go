@@ -72,9 +72,19 @@ func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
 		return
 	}
 	dbConn := db.SetupConnectionDB()
+	transaction, err := dbConn.Begin()
 
-	_, err := dbConn.Exec(queries.CreateEmployee, Employee.EmployeeName, Employee.DepartmentID)
 	if err != nil {
+		return
+	}
+	defer transaction.Rollback()
+
+	_, err = transaction.Exec(queries.CreateEmployee, Employee.EmployeeName, Employee.DepartmentID)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := transaction.Commit(); err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
