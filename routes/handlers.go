@@ -49,6 +49,7 @@ func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 	defer rows.Close()
 
 	var departments []map[string]interface{}
+
 	for rows.Next() {
 		var departmentID int
 		var departmentName string
@@ -72,4 +73,35 @@ func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 
 func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
 
+	var deptReq db.Department
+	if err := json.NewDecoder(reader.Body).Decode(&deptReq); err != nil {
+		http.Error(writer, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	if deptReq.DepartmentName == "" {
+		http.Error(writer, "Department name is required", http.StatusBadRequest)
+		return
+	}
+
+	dbconn, err := sql.Open("postgres", db.ConnStr) // todo := MAKE A CENTRAL PLACE FOR THIS
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer dbconn.Close()
+
+	if dbconn == nil {
+		http.Error(writer, "Database connection is not established", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = dbconn.Exec(queries.CreateDepartment, deptReq.DepartmentName)
+	if err != nil {
+		http.Error(writer, "Error creating department", http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusCreated)
+	writer.Write([]byte("Department created successfully"))
 }
