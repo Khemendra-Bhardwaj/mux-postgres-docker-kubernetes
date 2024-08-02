@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: khmndr/employee-department:tagname  # Update with your actual image
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: postgres-service
+        - name: DB_USER
+          value: postgres
+        - name: DB_PASS
+          value: postgres123
+        - name: DB_NAME
+          value: mydatabase
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80         # Port exposed by the service
+      targetPort: 8080 # Port on the container
+  type: LoadBalancer
+
