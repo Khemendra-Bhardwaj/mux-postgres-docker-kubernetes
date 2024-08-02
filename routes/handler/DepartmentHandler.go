@@ -1,4 +1,4 @@
-package routes
+package handler
 
 import (
 	"backend/db"
@@ -10,28 +10,6 @@ import (
 
 	_ "github.com/lib/pq"
 )
-
-func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
-	var dbconn *sql.DB
-	dbconn, err := sql.Open("postgres", db.ConnStr)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dbconn.Close()
-
-	rows, err := dbconn.Query(queries.GetEmployees)
-
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	log.Println(rows)
-}
-
-func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
-
-}
 
 func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 	dbconn, err := sql.Open("postgres", db.ConnStr)
