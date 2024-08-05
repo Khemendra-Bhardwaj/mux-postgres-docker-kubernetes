@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/db"
 	"backend/db/queries"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -11,15 +12,14 @@ import (
 )
 
 func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
-
-	dbconn := db.SetupConnectionDB()
-	transaction, err := dbconn.Begin()
+	dbconn, err := sql.Open("postgres", db.ConnStr)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer transaction.Rollback()
-	rows, err := transaction.Query(queries.GetDepartments)
+	defer dbconn.Close()
+
+	rows, err := dbconn.Query(queries.GetDepartments)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,11 +42,6 @@ func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 		})
 	}
 
-	if err := transaction.Commit(); err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(writer).Encode(departments); err != nil {
@@ -67,29 +62,21 @@ func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
 		return
 	}
 
-	dbconn := db.SetupConnectionDB()
-	transaction, err := dbconn.Begin()
-
+	dbconn, err := sql.Open("postgres", db.ConnStr) // todo := MAKE A CENTRAL PLACE FOR THIS
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	defer transaction.Rollback()
+	defer dbconn.Close()
 
 	if dbconn == nil {
 		http.Error(writer, "Database connection is not established", http.StatusInternalServerError)
 		return
 	}
 
-	_, err = transaction.Exec(queries.CreateDepartment, deptReq.DepartmentName)
+	_, err = dbconn.Exec(queries.CreateDepartment, deptReq.DepartmentName)
 	if err != nil {
 		http.Error(writer, "Error creating department", http.StatusInternalServerError)
-		return
-	}
-
-	if err := transaction.Commit(); err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

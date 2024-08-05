@@ -9,9 +9,7 @@ import (
 )
 
 var Dbconn *sql.DB
-
-// var ConnStr =
-var ConnStr = "user=postgres password=postgres123 dbname=mydatabase host=postgres sslmode=disable"
+var ConnStr = "postgres://postgres:admin@123@localhost:5432/department?sslmode=disable"
 
 func SetupDatabase() {
 	Dbconn, err := sql.Open("postgres", ConnStr)
