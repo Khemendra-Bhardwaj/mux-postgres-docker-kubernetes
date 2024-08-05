@@ -23,13 +23,17 @@ const GetEmployeesWithDepartments = `
     LEFT JOIN departments d ON e.department_id = d.department_id;
 `
 
-const UpdateUser = `
-    UPDATE employees 
-    SET employee_name = $1, department_id = $2 
-    WHERE employee_id = $3;
-`
-
-const DeleteUser = `
-    DELETE FROM employees 
-    WHERE employee_id = $1;
+const GetDepartment_EmployeesArr = `
+    SELECT
+    d.department_id,
+    d.department_name,
+    json_agg(
+        json_build_object(
+            'employee_id', e.employee_id,
+            'employee_name', e.employee_name
+        )
+    ) AS employees
+FROM departments d
+LEFT JOIN employees e ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
 `

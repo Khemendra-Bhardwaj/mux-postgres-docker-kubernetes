@@ -15,6 +15,9 @@ func SetupRouter() *mux.Router {
 	router.HandleFunc("/get-department", handler.GetDepartments).Methods("GET")
 	router.HandleFunc("/create-department", handler.CreateDepartment).Methods("POST")
 
+	router.HandleFunc("/get-userwithdepartment", handler.GetUsersWithDepartments).Methods("GET")
+	router.HandleFunc("/get-departments-users", handler.GetDepartmentEmployees).Methods("GET")
+
 	return router
 
 }

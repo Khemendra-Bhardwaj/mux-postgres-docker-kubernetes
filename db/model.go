@@ -8,3 +8,13 @@ type User struct {
 type Department struct {
 	DepartmentName string `json:"department_name"`
 }
+
+type EmployeeDepartment struct {
+	EmployeeId     int    `json:"employee_id"`
+	EmployeeName   string `json:"employee_name"`
+	DepartmentID   int    `json:"department_id"`
+	DepartmentName string `json:"department_name"`
+}
+
+// type DepartmentEmployeeArr struct {
+// }
