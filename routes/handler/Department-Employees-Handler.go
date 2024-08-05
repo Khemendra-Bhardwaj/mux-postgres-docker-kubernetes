@@ -29,7 +29,6 @@ func GetDepartmentEmployees(writer http.ResponseWriter, reader *http.Request) {
 
 	var results []map[string]interface{}
 
-	// Iterate through the rows
 	for rows.Next() {
 		var departmentID int
 		var departmentName string
@@ -51,7 +50,6 @@ func GetDepartmentEmployees(writer http.ResponseWriter, reader *http.Request) {
 		results = append(results, result)
 	}
 
-	// Commit the transaction
 	if err := transaction.Commit(); err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return

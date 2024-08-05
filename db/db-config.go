@@ -4,6 +4,8 @@ import (
 	"backend/db/queries"
 	"database/sql"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 var Dbconn *sql.DB
