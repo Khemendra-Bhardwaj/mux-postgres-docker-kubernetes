@@ -24,6 +24,14 @@ spec:
           value: postgres
         ports:
         - containerPort: 5432
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m" 
+          limits:
+            memory: "512Mi"
+            cpu : "500m" 
+
 ---
 apiVersion: v1
 kind: Service
