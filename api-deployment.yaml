@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-deployment
+  name: api
 spec:
   replicas: 1
   selector:
@@ -14,18 +14,13 @@ spec:
     spec:
       containers:
         - name: api
-          image: khmndr/department:latest  
+          image: khmndr/department:test01      
           ports:
             - containerPort: 8080
           env:
-            - name: DB_HOST
-              value: postgres   #host should be same as connstring in code 
-            - name: DB_USER
-              value: postgres
-            - name: DB_PASS
-              value: postgres123
-            - name: DB_NAME
-              value: mydatabase
+          - name: DATABASE_URL
+            value: postgres://postgres:example@postgres-service:5432/postgres?sslmode=disable
+
           resources:
             requests:
               memory: "256Mi"
@@ -37,7 +32,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-service
+  name: api
 spec:
   selector:
     app: api
@@ -45,4 +40,4 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-  
+
