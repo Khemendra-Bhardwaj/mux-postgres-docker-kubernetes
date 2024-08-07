@@ -2,47 +2,28 @@ package db
 
 import (
 	"backend/db/queries"
-	"database/sql"
 	"log"
 
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var Dbconn *sql.DB
+var DB *gorm.DB
 var ConnStr = "user=postgres password=example dbname=postgres host=postgres-service port=5432 sslmode=disable"
 
 func SetupDatabase() {
-	Dbconn, err := sql.Open("postgres", ConnStr)
-
+	var err error
+	DB, err = gorm.Open(postgres.Open(ConnStr), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error Connecting to database %v", err.Error())
 		return
 	}
 
-	if err = Dbconn.Ping(); err != nil {
-		log.Fatalf("Error Ping DB: %v", err)
-	}
-
-	defer func() {
-		err := Dbconn.Close()
-		if err != nil {
-			log.Fatalf("Error Closing DB %v", err.Error())
-			return
-		}
-	}()
-
-	_, err = Dbconn.Exec(queries.CreateTableDepartment)
-	if err != nil {
-		log.Fatalf("Error Creating Department Table %v ", err.Error())
+	// Automigrate schema
+	if err := DB.AutoMigrate(&queries.Employee{}, &queries.Department{}); err != nil {
+		log.Fatalf("Error Migrating Tables: %v", err)
 		return
 	}
 
-	_, err = Dbconn.Exec(queries.CreateTableEmployees)
-	if err != nil {
-		log.Fatalf("Error Creating Employee Table %v ", err.Error())
-		return
-	}
-
-	log.Println("SuccessFully created Both Tables")
-
+	log.Println("Successfully created and migrated tables")
 }

@@ -3,55 +3,28 @@ package handler
 import (
 	"backend/db"
 	"backend/db/queries"
-	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
-
-	_ "github.com/lib/pq"
 )
 
+// GetDepartments retrieves all departments from the database and returns them as JSON.
 func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
-	dbconn, err := sql.Open("postgres", db.ConnStr)
-	if err != nil {
+	var departments []queries.Department
+	if err := db.DB.Find(&departments).Error; err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
-	}
-	defer dbconn.Close()
-
-	rows, err := dbconn.Query(queries.GetDepartments)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var departments []map[string]interface{}
-
-	for rows.Next() {
-		var departmentID int
-		var departmentName string
-		if err := rows.Scan(&departmentID, &departmentName); err != nil {
-			log.Printf("Error scanning row: %v", err)
-			http.Error(writer, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		departments = append(departments, map[string]interface{}{
-			"department_id":   departmentID,
-			"department_name": departmentName,
-		})
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(writer).Encode(departments); err != nil {
-		log.Printf("Error encoding response: %v", err)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
 }
 
+// CreateDepartment creates a new department based on the request payload.
 func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
-
-	var deptReq db.Department
+	var deptReq queries.Department
 	if err := json.NewDecoder(reader.Body).Decode(&deptReq); err != nil {
 		http.Error(writer, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -62,20 +35,7 @@ func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
 		return
 	}
 
-	dbconn, err := sql.Open("postgres", db.ConnStr) // todo := MAKE A CENTRAL PLACE FOR THIS
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dbconn.Close()
-
-	if dbconn == nil {
-		http.Error(writer, "Database connection is not established", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = dbconn.Exec(queries.CreateDepartment, deptReq.DepartmentName)
-	if err != nil {
+	if err := db.DB.Create(&deptReq).Error; err != nil {
 		http.Error(writer, "Error creating department", http.StatusInternalServerError)
 		return
 	}
