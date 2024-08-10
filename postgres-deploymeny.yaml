@@ -19,9 +19,9 @@ spec:
         - name: POSTGRES_USER
           value: postgres
         - name: POSTGRES_PASSWORD
-          value: example
+          value: postgres123
         - name: POSTGRES_DB
-          value: postgres
+          value: mydatabase 
         ports:
         - containerPort: 5432
         resources:

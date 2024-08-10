@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
         - name: api
-          image: khmndr/department:test04      
+          image: khmndr/testing:test02     
           ports:
             - containerPort: 8080
           env:
           - name: DATABASE_URL
-            value: postgres://postgres:example@postgres-service:5432/postgres?sslmode=disable
+            value: postgres://postgres:postgres123@postgres:5432/mydatabase?sslmode=disable
 
           resources:
             requests:

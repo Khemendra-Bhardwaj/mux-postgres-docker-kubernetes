@@ -3,8 +3,13 @@ package handler
 import (
 	"backend/db"
 	"backend/db/queries"
+	"backend/pulsarutils"
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/apache/pulsar-client-go/pulsar"
 )
 
 func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
@@ -36,6 +41,20 @@ func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
 	if err := db.DB.Create(&empReq).Error; err != nil {
 		http.Error(writer, "Error creating employee", http.StatusInternalServerError)
 		return
+	}
+
+	// Produce a log message
+	logMessage := map[string]string{
+		"message":  "Employee created",
+		"employee": empReq.EmployeeName,
+	}
+	msgData, _ := json.Marshal(logMessage)
+	_, err := pulsarutils.LogsProducer.Send(context.Background(), &pulsar.ProducerMessage{
+		Payload: []byte(msgData),
+	})
+
+	if err != nil {
+		log.Printf("Error sending log message to Pulsar: %v", err)
 	}
 
 	writer.WriteHeader(http.StatusCreated)

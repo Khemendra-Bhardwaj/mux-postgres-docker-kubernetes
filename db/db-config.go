@@ -9,7 +9,7 @@ import (
 )
 
 var DB *gorm.DB
-var ConnStr = "user=postgres password=example dbname=postgres host=postgres-service port=5432 sslmode=disable"
+var ConnStr = "user=postgres password=postgres123 dbname=mydatabase host=postgres port=5432 sslmode=disable"
 
 func SetupDatabase() {
 	var err error
