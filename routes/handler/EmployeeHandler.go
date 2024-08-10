@@ -49,12 +49,12 @@ func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
 		"employee": empReq.EmployeeName,
 	}
 	msgData, _ := json.Marshal(logMessage)
-	_, err := pulsarutils.LogsProducer.Send(context.Background(), &pulsar.ProducerMessage{
+	_, err := pulsarutils.LogsEmployeeProducer.Send(context.Background(), &pulsar.ProducerMessage{
 		Payload: []byte(msgData),
 	})
 
 	if err != nil {
-		log.Printf("Error sending log message to Pulsar: %v", err)
+		log.Printf("Error sending create employee log message to Pulsar: %v", err)
 	}
 
 	writer.WriteHeader(http.StatusCreated)

@@ -3,11 +3,18 @@ package handler
 import (
 	"backend/db"
 	"backend/db/queries"
+	"backend/pulsarutils"
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+
+	"github.com/apache/pulsar-client-go/pulsar"
 )
 
 // GetDepartments retrieves all departments from the database and returns them as JSON.
+
+// TODO : Logs of Get Department As Well
 func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 	var departments []queries.Department
 	if err := db.DB.Find(&departments).Error; err != nil {
@@ -38,6 +45,21 @@ func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
 	if err := db.DB.Create(&deptReq).Error; err != nil {
 		http.Error(writer, "Error creating department", http.StatusInternalServerError)
 		return
+	}
+
+	logMessage := map[string]string{
+		"message":                 "Department created",
+		"department-name-created": deptReq.DepartmentName,
+	}
+
+	msgData, _ := json.Marshal(logMessage)
+
+	_, err := pulsarutils.LogsDepartmentProducer.Send(context.Background(), &pulsar.ProducerMessage{
+		Payload: []byte(msgData),
+	})
+
+	if err != nil {
+		log.Printf("Error sending create department log message to Pulsar %v ", err)
 	}
 
 	writer.WriteHeader(http.StatusCreated)

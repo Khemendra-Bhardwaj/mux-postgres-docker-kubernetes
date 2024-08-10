@@ -16,5 +16,4 @@ type EmployeeDepartment struct {
 	DepartmentName string `json:"department_name"`
 }
 
-// type DepartmentEmployeeArr struct {
-// }
+// NO LONGER IN USE
