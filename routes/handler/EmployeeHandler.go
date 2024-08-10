@@ -2,7 +2,7 @@ package handler
 
 import (
 	"backend/db"
-	"backend/db/queries"
+	"backend/db/models"
 	"backend/pulsarutils"
 	"context"
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 )
 
 func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
-	var employees []queries.Employee
+	var employees []models.Employee
 	if err := db.DB.Preload("Department").Find(&employees).Error; err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -27,7 +27,7 @@ func GetEmployees(writer http.ResponseWriter, reader *http.Request) {
 }
 
 func CreateEmployee(writer http.ResponseWriter, reader *http.Request) {
-	var empReq queries.Employee
+	var empReq models.Employee // fetching model-schema from model.go
 	if err := json.NewDecoder(reader.Body).Decode(&empReq); err != nil {
 		http.Error(writer, "Invalid request payload", http.StatusBadRequest)
 		return

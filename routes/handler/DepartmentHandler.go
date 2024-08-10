@@ -2,7 +2,7 @@ package handler
 
 import (
 	"backend/db"
-	"backend/db/queries"
+	"backend/db/models"
 	"backend/pulsarutils"
 	"context"
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 // TODO : Logs of Get Department As Well
 func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
-	var departments []queries.Department
+	var departments []models.Department
 	if err := db.DB.Find(&departments).Error; err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -31,7 +31,7 @@ func GetDepartments(writer http.ResponseWriter, reader *http.Request) {
 
 // CreateDepartment creates a new department based on the request payload.
 func CreateDepartment(writer http.ResponseWriter, reader *http.Request) {
-	var deptReq queries.Department
+	var deptReq models.Department
 	if err := json.NewDecoder(reader.Body).Decode(&deptReq); err != nil {
 		http.Error(writer, "Invalid request payload", http.StatusBadRequest)
 		return

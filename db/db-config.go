@@ -1,7 +1,7 @@
 package db
 
 import (
-	"backend/db/queries"
+	"backend/db/models"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -20,7 +20,7 @@ func SetupDatabase() {
 	}
 
 	// Automigrate schema
-	if err := DB.AutoMigrate(&queries.Employee{}, &queries.Department{}); err != nil {
+	if err := DB.AutoMigrate(&models.Employee{}, &models.Department{}); err != nil {
 		log.Fatalf("Error Migrating Tables: %v", err)
 		return
 	}

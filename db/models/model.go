@@ -1,4 +1,4 @@
-package queries
+package models
 
 import "gorm.io/gorm"
 

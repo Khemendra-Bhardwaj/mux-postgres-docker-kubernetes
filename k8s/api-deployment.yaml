@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: khmndr/testing:test03     
+          image: khmndr/testing:test04     
           ports:
             - containerPort: 8080
           env:
